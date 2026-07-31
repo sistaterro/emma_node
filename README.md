@@ -16,13 +16,13 @@ The React interface has been migrated. The Fastify HTTP contract is present, but
 | Chat policies and prompt builders | Ported and unit tested |
 | RAG security module | Ported and unit tested; not integrated |
 | Health and model catalog | Implemented and unit tested |
-| Authentication and authorization | Not implemented |
+| Authentication, sessions, and authorization | Implemented and unit tested |
 | SQLite schema and lifecycle | Implemented and unit tested |
 | Domain persistence repositories | Not implemented |
 | File and RAG pipeline | Not implemented |
 | LangChain generation and streaming | Not implemented |
 
-Because authentication is not implemented yet, only the login screen can currently be explored normally. Protected React routes call `/auth/me` and redirect to login when no valid backend session is available.
+On a new database, sign in with `admin` / `admin1234`. Emma immediately requires replacing that temporary password before protected workspace routes become available.
 
 ## Requirements
 
@@ -122,6 +122,7 @@ src/pages/             React page components
 src/chat-policy.js     Context budgeting and deterministic language replies
 src/prompts.js         Canonical AI prompt builders
 src/rag-security.js    RAG security normalization, indexes, and audit logs
+src/auth/              Password, bearer-session, and authorization policies
 src/routes/server.js   Empty Fastify endpoint contract
 src/app.js             Fastify application builder and SPA serving
 src/server.js          Backend process entry point

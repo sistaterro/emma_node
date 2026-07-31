@@ -7,6 +7,8 @@ import { openDatabase } from "../db/index.js";
  */
 export default function databasePlugin(app, options) {
   app.decorate("emmaDb", null);
+  app.decorateRequest("emmaToken", null);
+  app.decorateRequest("emmaUser", null);
   app.addHook("onReady", async () => {
     app.emmaDb = openDatabase(options.config.databasePath);
   });

@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { buildApp } from "../app.js";
 import { createConfig } from "../config.js";
+import { createSession } from "../auth/sessions.js";
 
 /** @type {string[]} */
 const directories = [];
@@ -27,8 +28,14 @@ describe("health route", () => {
     const modelCatalog = /** @type {ReturnType<typeof import("../models/catalog.js").createModelCatalog>} */ (/** @type {unknown} */ ({ availableModels: async () => models }));
     const app = buildApp({ logger: false }, { config, modelCatalog });
     apps.push(app);
+    await app.ready();
+    const database = app.emmaDb;
+    if (!database) throw new Error("Expected initialized database");
+    const admin = /** @type {{id: number}} */ (database.prepare("SELECT id FROM users WHERE username = 'admin'").get());
+    database.prepare("UPDATE users SET must_change_password = 0 WHERE id = ?").run(admin.id);
+    const token = createSession(database, admin.id);
 
-    const response = await app.inject("/health");
+    const response = await app.inject({ url: "/health", headers: { authorization: `Bearer ${token}` } });
     const body = response.json();
 
     expect(response.statusCode).toBe(200);

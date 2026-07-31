@@ -33,12 +33,12 @@ The objective is to port Hybrid Emma from Python/FastAPI and static HTML to Node
 - Centralized runtime configuration, local-directory initialization, CORS, consistent HTTP errors, exception auditing, and bounded exception-log rotation.
 - Managed SQLite lifecycle, idempotent schema migration, foreign-key enforcement, and initial administrator bootstrap.
 - Provider-key resolution, Ollama model discovery with timeout/fallback, model resolution, and the `/health` response contract.
+- Bcrypt passwords, bearer sessions, forced temporary-password replacement, protected health access, and reusable role policies.
 
 ### Deliberately not implemented
 
 - Every handler in `src/routes/server.js` is empty by design.
 - Domain persistence repositories beyond the shared SQLite foundation.
-- Authentication, bearer sessions, and permissions.
 - User administration.
 - Conversation persistence.
 - File management and RAG processing.
@@ -87,6 +87,10 @@ Do not claim these features work merely because the frontend contains their cont
   - Framework-independent RAG prompt-injection assessment and persistence policies.
   - Receives model catalog, model resolution, generation, and exception logging as injected functions.
   - It is implemented and unit tested but not yet wired into upload or chat endpoints.
+
+- `src/auth/`
+  - Canonical password, session, current-user, role normalization, and authorization policies.
+  - `authenticateRequest` enforces disabled users and temporary-password route restrictions.
 
 - `src/main.jsx`
   - Maps SPA paths and legacy `/ui/*.html` aliases to React pages.
@@ -339,7 +343,9 @@ Completion criteria:
 - Responses contain provider/model metadata but never secret values.
 - Failure of a local model runtime does not crash application startup.
 
-### Debt 4: authentication, sessions, and authorization
+### Debt 4: authentication, sessions, and authorization — closed
+
+Status: completed and covered by route and policy tests, including session invalidation and forced password replacement.
 
 Scope:
 

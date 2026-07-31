@@ -1,6 +1,8 @@
+import { authenticateRequest } from "../auth/sessions.js";
+
 /** @param {import("fastify").FastifyInstance} app Register provider and model availability without exposing keys. */
 export default function healthRoutes(app) {
-  app.get("/health", async () => {
+  app.get("/health", { preHandler: (request) => authenticateRequest(app, request) }, async () => {
     const models = await app.emmaModels.availableModels();
     return {
       status: "ok",

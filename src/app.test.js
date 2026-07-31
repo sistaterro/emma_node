@@ -17,7 +17,7 @@ afterEach(async () => {
 });
 
 describe("Fastify application", () => {
-  it("reports a healthy status", async () => {
+  it("protects health until authentication is available", async () => {
     const root = mkdtempSync(join(tmpdir(), "emma-app-health-"));
     directories.push(root);
     const config = createConfig({}, root);
@@ -27,14 +27,7 @@ describe("Fastify application", () => {
 
     const response = await app.inject({ method: "GET", url: "/health" });
 
-    expect(response.statusCode).toBe(200);
-    expect(response.json()).toMatchObject({
-      status: "ok",
-      models: [],
-      providers: [],
-      sources: [],
-      local_models: [],
-      external_api_models: [],
-    });
+    expect(response.statusCode).toBe(401);
+    expect(response.json()).toEqual({ detail: "Not authenticated" });
   });
 });

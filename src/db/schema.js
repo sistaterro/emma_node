@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import { hashPasswordSync } from "../auth/passwords.js";
 
 /** @param {import("better-sqlite3").Database} database Create or migrate schema and bootstrap admin. */
 export function initializeSchema(database) {
@@ -53,7 +53,7 @@ export function initializeSchema(database) {
       INSERT INTO users (
         username, password_hash, role, full_name, is_active, must_change_password, created_at
       ) VALUES (?, ?, 'admin', ?, 1, 1, ?)
-    `).run("admin", bcrypt.hashSync("admin1234", 10), "Administrator", new Date().toISOString());
+    `).run("admin", hashPasswordSync("admin1234"), "Administrator", new Date().toISOString());
   }
 }
 

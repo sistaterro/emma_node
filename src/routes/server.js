@@ -8,11 +8,6 @@
 export default async function serverRoutes(app) {
   app.get("/favicon.ico", async function favicon() {});
 
-  app.post("/auth/login", async function login() {});
-  app.post("/auth/logout", async function logout() {});
-  app.get("/auth/me", async function me() {});
-  app.post("/auth/change-password", async function changePassword() {});
-
   app.get("/admin/users", async function listUsers() {});
   app.post("/admin/users", async function createUser() {});
   app.patch("/admin/users/:target_user_id", async function updateUser() {});

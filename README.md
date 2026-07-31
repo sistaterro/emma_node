@@ -150,7 +150,7 @@ The backend should be implemented in small, testable slices. A practical order i
 
 1. Configuration, errors, SQLite initialization, and `/health`.
 2. Authentication, sessions, forced password changes, and role enforcement.
-3. Administrative user management.
+3. Administrative user management. Implemented and covered by integration tests.
 4. Conversation persistence.
 5. File upload, download, deletion, and RAG indexing.
 6. RAG inconsistency and prompt-injection analysis.

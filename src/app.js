@@ -11,6 +11,7 @@ import databasePlugin from "./plugins/database.js";
 import { createModelCatalog } from "./models/catalog.js";
 import healthRoutes from "./routes/health.js";
 import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/users.js";
 import { ensureRuntimeDirectories } from "./runtime.js";
 
 const frontendRoot = fileURLToPath(new URL("../dist", import.meta.url));
@@ -33,6 +34,7 @@ export function buildApp(options = {}, dependencies = {}) {
   errorHandlerPlugin(app, { config: runtimeConfig });
   databasePlugin(app, { config: runtimeConfig });
   authRoutes(app);
+  userRoutes(app);
   healthRoutes(app);
   app.register(serverRoutes);
   app.addHook("onReady", async () => ensureRuntimeDirectories(runtimeConfig));

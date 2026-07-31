@@ -34,12 +34,12 @@ The objective is to port Hybrid Emma from Python/FastAPI and static HTML to Node
 - Managed SQLite lifecycle, idempotent schema migration, foreign-key enforcement, and initial administrator bootstrap.
 - Provider-key resolution, Ollama model discovery with timeout/fallback, model resolution, and the `/health` response contract.
 - Bcrypt passwords, bearer sessions, forced temporary-password replacement, protected health access, and reusable role policies.
+- Administrative user listing, creation, editing, password reset, deletion, session invalidation, and final-admin safeguards.
 
 ### Deliberately not implemented
 
 - Every handler in `src/routes/server.js` is empty by design.
 - Domain persistence repositories beyond the shared SQLite foundation.
-- User administration.
 - Conversation persistence.
 - File management and RAG processing.
 - Integration of RAG security into ingestion and chat.
@@ -369,7 +369,9 @@ Completion criteria:
 - Protected endpoints reject missing, invalid, disabled, and restricted sessions correctly.
 - Authorization is enforced by Fastify, never only by React.
 
-### Debt 5: administrative user management
+### Debt 5: administrative user management — closed
+
+Status: implemented and covered by route-level integration tests.
 
 Scope:
 

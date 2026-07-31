@@ -8,12 +8,6 @@
 export default async function serverRoutes(app) {
   app.get("/favicon.ico", async function favicon() {});
 
-  app.get("/admin/users", async function listUsers() {});
-  app.post("/admin/users", async function createUser() {});
-  app.patch("/admin/users/:target_user_id", async function updateUser() {});
-  app.post("/admin/users/:target_user_id/reset-password", async function resetPassword() {});
-  app.delete("/admin/users/:target_user_id", async function deleteUser() {});
-
   app.get("/files", async function listFiles() {});
   app.post("/upload", async function uploadFile() {});
   app.delete("/files/:scope/:stem", async function deleteFile() {});

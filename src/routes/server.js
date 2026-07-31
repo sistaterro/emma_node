@@ -19,8 +19,6 @@ export default async function serverRoutes(app) {
   app.post("/admin/users/:target_user_id/reset-password", async function resetPassword() {});
   app.delete("/admin/users/:target_user_id", async function deleteUser() {});
 
-  app.get("/health", async function health() {});
-
   app.get("/files", async function listFiles() {});
   app.post("/upload", async function uploadFile() {});
   app.delete("/files/:scope/:stem", async function deleteFile() {});

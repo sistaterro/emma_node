@@ -32,6 +32,7 @@ The objective is to port Hybrid Emma from Python/FastAPI and static HTML to Node
 - Focused unit tests for the three ported peripheral modules.
 - Centralized runtime configuration, local-directory initialization, CORS, consistent HTTP errors, exception auditing, and bounded exception-log rotation.
 - Managed SQLite lifecycle, idempotent schema migration, foreign-key enforcement, and initial administrator bootstrap.
+- Provider-key resolution, Ollama model discovery with timeout/fallback, model resolution, and the `/health` response contract.
 
 ### Deliberately not implemented
 
@@ -47,13 +48,9 @@ The objective is to port Hybrid Emma from Python/FastAPI and static HTML to Node
 
 Do not claim these features work merely because the frontend contains their controls or the Fastify routes exist.
 
-## Known expected failure
+## Verification baseline
 
-`npm test` currently fails because `src/app.test.js` expects `/health` to return `{ "status": "ok" }`, while `/health` is intentionally empty.
-
-This failure documents the next incomplete contract. Do not weaken or delete the assertion to make the suite green. Make it pass when the real health implementation is added.
-
-`npm run check` and `npm run build` are expected to pass.
+`npm run check`, `npm test`, and `npm run build` are expected to pass. Tests that inspect runtime configuration, SQLite, provider keys, or model discovery must use temporary paths and injected model catalogs; they must not depend on the developer's real `emma.db`, API keys, environment, or Ollama installation.
 
 ## Repository structure
 
@@ -319,7 +316,9 @@ Completion criteria:
 - Tests do not touch the real `emma.db`.
 - SQL remains parameterized; no request value is interpolated into SQL text.
 
-### Debt 3: health and model catalog
+### Debt 3: health and model catalog — closed
+
+Status: completed and covered by deterministic catalog and route tests. Authentication protection is added by Debt 4.
 
 Scope:
 

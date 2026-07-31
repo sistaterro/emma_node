@@ -15,6 +15,7 @@ The React interface has been migrated. The Fastify HTTP contract is present, but
 | API route signatures | Registered with empty handlers |
 | Chat policies and prompt builders | Ported and unit tested |
 | RAG security module | Ported and unit tested; not integrated |
+| Health and model catalog | Implemented and unit tested |
 | Authentication and authorization | Not implemented |
 | SQLite schema and lifecycle | Implemented and unit tested |
 | Domain persistence repositories | Not implemented |
@@ -109,9 +110,7 @@ npm test
 npm run build
 ```
 
-`npm run check` and `npm run build` pass at the current migration stage.
-
-`npm test` currently fails intentionally: the existing test expects `/health` to return `{ "status": "ok" }`, while every migrated endpoint handler is deliberately empty. Update that test only when `/health` receives its real implementation.
+`npm run check`, `npm test`, and `npm run build` pass at the current migration stage.
 
 ## Project structure
 

@@ -1,0 +1,41 @@
+# Reference implementation (local migration source only)
+reference/
+
+# Node dependencies and generated output
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+api_keys.json
+api.txt
+openai_api.txt
+anthropic_api.txt
+
+# Runtime database and user data
+emma.db
+emma.db-*
+files/
+chunks/
+files_index.json
+conflicts_index.json
+security_index.json
+logs/
+
+# Temporary files and logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editors and operating systems
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

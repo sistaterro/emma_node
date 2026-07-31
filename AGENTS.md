@@ -26,6 +26,10 @@ The objective is to port Hybrid Emma from Python/FastAPI and static HTML to Node
 - Vite development proxy under `/api`.
 - Fastify production serving for the built React SPA.
 - All 22 FastAPI route signatures registered in Fastify.
+- Pure chat policies for safe integer settings, whole-chunk context budgeting, language detection, and deterministic no-information replies.
+- Canonical prompt builders for safety, RAG security, inconsistency comparison, grounded chat, and general chat.
+- Standalone RAG security analysis, normalization, index pruning/persistence, lazy assessment, high-risk exclusion policy, and suspicious-RAG audit logging.
+- Focused unit tests for the three ported peripheral modules.
 
 ### Deliberately not implemented
 
@@ -35,7 +39,8 @@ The objective is to port Hybrid Emma from Python/FastAPI and static HTML to Node
 - User administration.
 - Conversation persistence.
 - File management and RAG processing.
-- RAG security and inconsistency detection.
+- Integration of RAG security into ingestion and chat.
+- The inconsistency detection pipeline beyond its canonical prompt builder.
 - Model discovery, LangChain generation, and streaming.
 
 Do not claim these features work merely because the frontend contains their controls or the Fastify routes exist.
@@ -70,6 +75,19 @@ This failure documents the next incomplete contract. Do not weaken or delete the
   - Canonical frontend API client.
   - Adds bearer tokens, applies the development `/api` prefix, parses API errors, and manages local session keys.
   - Do not duplicate raw authenticated `fetch` logic across pages.
+
+- `src/chat-policy.js`
+  - Pure, framework-independent context budgeting and deterministic language policies.
+  - Keeps chunks whole and ordered; never replace this with silent text truncation.
+
+- `src/prompts.js`
+  - Canonical location for the five AI prompt builders.
+  - Keep active prompt text centralized here rather than embedding prompts in routes or model adapters.
+
+- `src/rag-security.js`
+  - Framework-independent RAG prompt-injection assessment and persistence policies.
+  - Receives model catalog, model resolution, generation, and exception logging as injected functions.
+  - It is implemented and unit tested but not yet wired into upload or chat endpoints.
 
 - `src/main.jsx`
   - Maps SPA paths and legacy `/ui/*.html` aliases to React pages.

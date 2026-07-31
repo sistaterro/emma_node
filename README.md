@@ -13,6 +13,8 @@ The React interface has been migrated. The Fastify HTTP contract is present, but
 | Fastify server bootstrap | Working |
 | Static production frontend | Working after `npm run build` |
 | API route signatures | Registered with empty handlers |
+| Chat policies and prompt builders | Ported and unit tested |
+| RAG security module | Ported and unit tested; not integrated |
 | Authentication and authorization | Not implemented |
 | SQLite persistence | Not implemented |
 | File and RAG pipeline | Not implemented |
@@ -117,6 +119,9 @@ public/assets/          Static images and favicons
 src/components/        Shared React components
 src/lib/api.js          Auth storage and API client
 src/pages/             React page components
+src/chat-policy.js     Context budgeting and deterministic language replies
+src/prompts.js         Canonical AI prompt builders
+src/rag-security.js    RAG security normalization, indexes, and audit logs
 src/routes/server.js   Empty Fastify endpoint contract
 src/app.js             Fastify application builder and SPA serving
 src/server.js          Backend process entry point

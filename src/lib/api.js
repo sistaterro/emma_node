@@ -1,5 +1,6 @@
 const TOKEN_KEY = "emma_token";
 const USER_KEY = "emma_user";
+const API_PREFIX = import.meta.env.DEV ? "/api" : "";
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
@@ -35,7 +36,7 @@ export async function api(path, options = {}) {
     headers.set("Content-Type", "application/json");
   }
 
-  const response = await fetch(path, { ...options, headers });
+  const response = await fetch(`${API_PREFIX}${path}`, { ...options, headers });
   if (response.status === 401) clearSession();
   if (!response.ok) {
     let message = `Request failed (${response.status})`;

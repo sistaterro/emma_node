@@ -3,7 +3,7 @@ import fastifyStatic from "@fastify/static";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-import healthRoutes from "./routes/health.js";
+import serverRoutes from "./routes/server.js";
 
 const frontendRoot = fileURLToPath(new URL("../dist", import.meta.url));
 
@@ -13,7 +13,7 @@ export function buildApp(options = {}) {
     ...options,
   });
 
-  app.register(healthRoutes);
+  app.register(serverRoutes);
 
   if (existsSync(frontendRoot)) {
     app.register(fastifyStatic, { root: frontendRoot });

@@ -44,6 +44,15 @@ export function UploadPage({ user }) {
     try { await api(`/files/${file.scope}/${encodeURIComponent(file.stem)}`, { method: "DELETE" }); await loadFiles(); }
     catch (reason) { setError(reason.message); }
   }
+  async function download(file, name) {
+    try {
+      const response = await api(`/files/${file.scope}/${encodeURIComponent(file.stem)}/download`);
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = url; link.download = name; link.click();
+      URL.revokeObjectURL(url);
+    } catch (reason) { setError(reason.message); }
+  }
   async function clearScope(targetScope) {
     if (!window.confirm(`Delete every ${targetScope} knowledge file?`)) return;
     try { await api(`/files/${targetScope}`, { method: "DELETE" }); await loadFiles(); }
@@ -69,7 +78,7 @@ export function UploadPage({ user }) {
     <section className="panel"><div className="panel__header"><div><h2>Indexed sources</h2><p>{files.length} visible file{files.length === 1 ? "" : "s"}</p></div>{files.length > 0 && <button className="text-button danger" onClick={() => clearScope(user.role === "admin" ? "global" : "user")}>Clear scope</button>}</div>
       <div className="file-grid">{files.length === 0 ? <div className="empty-state"><span>◇</span><h3>No knowledge files yet</h3><p>Upload a text document to begin.</p></div> : files.map((file) => {
         const risk = file.security?.risk ?? "none"; const name = file.name ?? file.filename ?? `${file.stem}.txt`;
-        return <article className="file-card" key={`${file.scope}-${file.owner_id ?? "global"}-${file.stem}`}><div className="file-card__top"><span className="file-icon">TXT</span><div><h3>{name}</h3><small>{file.scope === "global" ? "Global" : file.owner_username ? `Owner: ${file.owner_username}` : "Private"}</small></div><button className="icon-button danger" onClick={() => remove(file)}>×</button></div><div className="file-card__meta"><span className={`risk risk--${risk}`}>{risk === "none" ? "Safe" : `${risk} risk`}</span><span>{file.status ?? (file.indexed ? "indexed" : "indexing")}</span><span>{file.chunk_count ?? file.chunks ?? 0} chunks</span></div>{file.conflicts?.has_any && <div className="conflict-note">Potential inconsistencies detected with another source.</div>}<div className="file-card__actions"><a href={`/files/${file.scope}/${encodeURIComponent(file.stem)}/download`}>Download</a></div></article>;
+        return <article className="file-card" key={`${file.scope}-${file.owner_id ?? "global"}-${file.stem}`}><div className="file-card__top"><span className="file-icon">TXT</span><div><h3>{name}</h3><small>{file.scope === "global" ? "Global" : file.owner_username ? `Owner: ${file.owner_username}` : "Private"}</small></div><button className="icon-button danger" onClick={() => remove(file)}>×</button></div><div className="file-card__meta"><span className={`risk risk--${risk}`}>{risk === "none" ? "Safe" : `${risk} risk`}</span><span>{file.status ?? (file.indexed ? "indexed" : "indexing")}</span><span>{file.chunk_count ?? file.chunks ?? 0} chunks</span></div>{file.conflicts?.has_any && <div className="conflict-note">Potential inconsistencies detected with another source.</div>}<div className="file-card__actions"><button className="text-button" onClick={() => download(file, name)}>Download</button></div></article>;
       })}</div>
     </section>
   </AppShell>;

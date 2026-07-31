@@ -30,6 +30,7 @@ The objective is to port Hybrid Emma from Python/FastAPI and static HTML to Node
 - Canonical prompt builders for safety, RAG security, inconsistency comparison, grounded chat, and general chat.
 - Standalone RAG security analysis, normalization, index pruning/persistence, lazy assessment, high-risk exclusion policy, and suspicious-RAG audit logging.
 - Focused unit tests for the three ported peripheral modules.
+- Centralized runtime configuration, local-directory initialization, CORS, consistent HTTP errors, exception auditing, and bounded exception-log rotation.
 
 ### Deliberately not implemented
 
@@ -121,7 +122,7 @@ npm run build
 npm start
 ```
 
-- `npm run dev`: Fastify with Node watch mode, default `127.0.0.1:8000`.
+- `npm run dev`: Fastify with Node watch mode, default `127.0.0.1:8650`.
 - `npm run dev:client`: Vite, normally `localhost:5173`.
 - `npm run check`: TypeScript checking over JavaScript and JSX.
 - `npm test`: Vitest; currently has the intentional health failure described above.
@@ -260,6 +261,281 @@ Frontend visibility is a convenience. Every permission must be enforced again in
 - Never log API keys or bearer tokens.
 - Retain bounded log rotation behavior.
 - High-risk RAG records and suspicious chat assessments require enough metadata to investigate without exposing secrets unnecessarily.
+
+## Final migration stage: tracked technical debt
+
+The remaining `server.py` migration is the final major stage of the port. Treat every item below as tracked technical debt until its implementation, integration, and tests exist in Node.
+
+Work through the parts in order. A later part may depend on earlier infrastructure, permissions, or persistence. Do not migrate the entire Python server into one JavaScript file or one oversized change.
+
+### Debt 1: runtime configuration and application infrastructure — closed
+
+Status: completed and covered by focused tests. Keep the boundaries and completion criteria below as maintenance requirements.
+
+Scope:
+
+- Centralize environment parsing, ports, model URLs, context limits, and runtime paths.
+- Register `@fastify/cors` and the global Fastify error handler.
+- Create filesystem directories safely during application startup.
+- Port bounded exception-log persistence and rotation.
+- Keep application construction testable without opening a network port.
+
+Expected boundaries:
+
+- `src/config.js`
+- `src/plugins/error-handler.js`
+- Small filesystem or logging helpers where justified
+
+Completion criteria:
+
+- Invalid environment values fall back safely.
+- Errors have consistent JSON responses.
+- Unhandled server errors are logged without leaking secrets.
+- Startup and shutdown work in tests and in the real process.
+
+### Debt 2: SQLite schema and persistence foundation
+
+Scope:
+
+- Open the local database through `better-sqlite3`.
+- Port schema initialization for users, sessions, conversations, and messages.
+- Preserve foreign-key and deletion behavior from the reference implementation.
+- Provide explicit transaction boundaries and close the database cleanly.
+- Seed only the same required initial data as the Python reference.
+
+Expected boundaries:
+
+- `src/db/index.js`
+- `src/db/schema.js`
+- Focused repositories added only as their domains are implemented
+
+Completion criteria:
+
+- A temporary database can be initialized from nothing.
+- Schema initialization is repeatable.
+- Tests do not touch the real `emma.db`.
+- SQL remains parameterized; no request value is interpolated into SQL text.
+
+### Debt 3: health and model catalog
+
+Scope:
+
+- Implement `/health` with the reference response contract.
+- Discover configured local Ollama-compatible models.
+- Read external-provider availability without exposing API keys.
+- Separate provider configuration from model resolution.
+
+Expected boundaries:
+
+- `src/models/catalog.js`
+- `src/routes/health.js`
+
+Completion criteria:
+
+- The existing health test passes with the real response.
+- Local and external models use stable IDs and source labels.
+- Responses contain provider/model metadata but never secret values.
+- Failure of a local model runtime does not crash application startup.
+
+### Debt 4: authentication, sessions, and authorization
+
+Scope:
+
+- Port bcrypt password hashing and verification.
+- Implement bearer-session creation, lookup, and logout.
+- Implement `/auth/login`, `/auth/logout`, `/auth/me`, and `/auth/change-password`.
+- Enforce active users, normalized roles, and `must_change_password` restrictions.
+- Add reusable admin, upload, ownership, and read-only policies.
+
+Expected boundaries:
+
+- `src/auth/passwords.js`
+- `src/auth/sessions.js`
+- `src/auth/authorization.js`
+- `src/routes/auth.js`
+
+Completion criteria:
+
+- Authentication behavior matches the reference tests.
+- Password replacement invalidates other sessions but preserves the current session.
+- Protected endpoints reject missing, invalid, disabled, and restricted sessions correctly.
+- Authorization is enforced by Fastify, never only by React.
+
+### Debt 5: administrative user management
+
+Scope:
+
+- Implement list, create, update, password-reset, and delete user endpoints.
+- Preserve username uniqueness, normalized roles, active state, and temporary-password behavior.
+- Prevent unsafe deletion or modification scenarios handled by the reference server.
+
+Expected boundaries:
+
+- `src/db/users.js`
+- `src/routes/users.js`
+- Zod schemas for every request body
+
+Completion criteria:
+
+- The React admin screen works without response-shape changes.
+- Admin-only enforcement is covered by tests.
+- Renaming users and resetting passwords preserve the reference behavior.
+
+### Debt 6: conversation persistence
+
+Scope:
+
+- Implement conversation list, create, read, rename, and delete endpoints.
+- Persist messages in order and scope every operation to the current user.
+- Preserve timestamps, IDs, model selection, and response shapes.
+
+Expected boundaries:
+
+- `src/db/conversations.js`
+- `src/routes/conversations.js`
+
+Completion criteria:
+
+- Users cannot access another user's conversations.
+- Delete and recreate edge cases do not leave stale UI state.
+- Chat persistence can later store each user/assistant turn exactly once.
+
+### Debt 7: file storage and RAG ingestion
+
+Scope:
+
+- Implement visible file listing, multipart upload, download, individual deletion, and scoped deletion.
+- Preserve global versus user ownership rules.
+- Sanitize filenames and accept only supported text files.
+- Port JSON-only chunk creation and file-index persistence.
+- Prevent background processing from resurrecting deleted files.
+
+Expected boundaries:
+
+- `src/files/storage.js`
+- `src/rag/ingestion.js`
+- `src/routes/files.js`
+
+Completion criteria:
+
+- Admin, user, and read-only behavior matches the reference.
+- Upload and deletion remain safe under concurrent processing.
+- Chunks and indexes contain no embeddings or `.npy` artifacts.
+- Runtime data stays within configured local directories.
+
+### Debt 8: inconsistency analysis pipeline
+
+Scope:
+
+- Use `buildInconsistencyPrompt` for model comparisons.
+- Compare eligible RAG sources conservatively.
+- Persist asynchronous results in `conflicts_index.json`.
+- Prune direct records and orphaned matches when files are deleted.
+- Surface `checking` and `checked` states through `/files`.
+
+Expected boundaries:
+
+- `src/rag/inconsistencies.js`
+- Integration with ingestion, deletion, and file listing
+
+Completion criteria:
+
+- Only direct factual contradictions are reported.
+- Missing checks can be scheduled without duplicate uncontrolled work.
+- Deleting either side removes stale conflict information.
+
+### Debt 9: RAG security integration
+
+Scope:
+
+- Connect the existing `src/rag-security.js` module to upload, listing, deletion, and chat context loading.
+- Inject the real model catalog, model resolver, generation boundary, and exception logger.
+- Persist `security_index.json` and suspicious RAG audit logs.
+- Lazily assess missing records before admitting chunks into chat.
+
+Expected boundaries:
+
+- Existing `src/rag-security.js` remains independent from Fastify.
+- Integration belongs in RAG services and thin routes.
+
+Completion criteria:
+
+- Medium and high findings are visible to the frontend.
+- High-risk RAG text never reaches a chat prompt.
+- Deletion prunes security records.
+- Multilingual and parse-error behavior remains conservative and tested.
+
+### Debt 10: LangChain provider boundary
+
+Scope:
+
+- Instantiate Ollama, Gemini, OpenAI, and Anthropic chat models through their LangChain packages.
+- Convert internal messages to LangChain message types.
+- Support both invocation and provider streaming behind one internal interface.
+- Normalize model output without exposing provider-specific objects to routes.
+
+Expected boundaries:
+
+- `src/models/factory.js`
+- `src/models/generate.js`
+
+Completion criteria:
+
+- Routes never call provider REST APIs directly.
+- Missing packages, keys, models, and runtimes produce clear errors.
+- Automated tests mock every provider and make no real external calls.
+
+### Debt 11: chat orchestration, safety, and streaming
+
+Scope:
+
+- Implement `/chat` using the selected model, conversation history, user-message safety analysis, and visible safe context.
+- Use `boundedContextChunks`, the canonical prompt builders, and RAG security exclusion.
+- Enforce RAG response tags and remove accidental tags from general mode.
+- Stream reference-compatible newline-delimited JSON.
+- Persist messages and suspicious-chat audits exactly once.
+
+Expected boundaries:
+
+- `src/chat/orchestrator.js`
+- `src/chat/stream.js`
+- `src/chat/audit.js`
+- `src/routes/chat.js`
+
+Completion criteria:
+
+- React renders incremental responses using `{ "text": string, "done": boolean }` events.
+- General mode activates whenever no safe usable chunks remain.
+- RAG context is explicitly untrusted and cannot override system rules.
+- Streaming and non-streaming paths persist equivalent final content.
+- Provider or client disconnect failures do not create duplicate messages.
+
+### Debt 12: route decomposition and final parity validation
+
+Scope:
+
+- Replace the empty handlers in `src/routes/server.js` with registrations of the completed route plugins.
+- Remove obsolete stubs only after their real replacements are registered.
+- Port the remaining relevant Python tests into Vitest.
+- Run role-based, persistence, upload, RAG security, conflict, provider, and streaming smoke tests.
+- Update README and this document to describe the completed Node behavior rather than migration scaffolding.
+
+Completion criteria:
+
+- No endpoint handler remains an empty placeholder.
+- The full Node test suite passes.
+- `npm run check`, `npm test`, and `npm run build` all pass.
+- No runtime path depends on Python or files inside `reference/`.
+- The React application works against Fastify without compatibility shims beyond documented legacy URL aliases.
+
+## Technical-debt handling rules
+
+- Close one debt block at a time unless two blocks are inseparable and reviewed together.
+- Do not mark a block complete because files or route signatures exist; its completion criteria must be met.
+- When completing a block, add or port its tests and update the migration-state sections in README and AGENTS.
+- If implementation reveals an omitted dependency, record it under the relevant block before expanding scope.
+- Preserve known expected failures only while their owning debt block is still open.
+- Do not hide incomplete behavior behind fake success responses, permissive authorization, or disabled tests.
 
 ## Implementation method
 

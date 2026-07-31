@@ -44,7 +44,7 @@ Copy-Item .env.example .env.local
 The default development backend URL is:
 
 ```env
-VITE_BACKEND_URL=http://127.0.0.1:8000
+VITE_BACKEND_URL=http://127.0.0.1:8650
 ```
 
 For a backend running on port `8650`, change it to:

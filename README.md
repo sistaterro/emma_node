@@ -16,7 +16,8 @@ The React interface has been migrated. The Fastify HTTP contract is present, but
 | Chat policies and prompt builders | Ported and unit tested |
 | RAG security module | Ported and unit tested; not integrated |
 | Authentication and authorization | Not implemented |
-| SQLite persistence | Not implemented |
+| SQLite schema and lifecycle | Implemented and unit tested |
+| Domain persistence repositories | Not implemented |
 | File and RAG pipeline | Not implemented |
 | LangChain generation and streaming | Not implemented |
 

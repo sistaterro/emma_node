@@ -31,11 +31,12 @@ The objective is to port Hybrid Emma from Python/FastAPI and static HTML to Node
 - Standalone RAG security analysis, normalization, index pruning/persistence, lazy assessment, high-risk exclusion policy, and suspicious-RAG audit logging.
 - Focused unit tests for the three ported peripheral modules.
 - Centralized runtime configuration, local-directory initialization, CORS, consistent HTTP errors, exception auditing, and bounded exception-log rotation.
+- Managed SQLite lifecycle, idempotent schema migration, foreign-key enforcement, and initial administrator bootstrap.
 
 ### Deliberately not implemented
 
 - Every handler in `src/routes/server.js` is empty by design.
-- SQLite schema and persistence.
+- Domain persistence repositories beyond the shared SQLite foundation.
 - Authentication, bearer sessions, and permissions.
 - User administration.
 - Conversation persistence.
@@ -293,7 +294,9 @@ Completion criteria:
 - Unhandled server errors are logged without leaking secrets.
 - Startup and shutdown work in tests and in the real process.
 
-### Debt 2: SQLite schema and persistence foundation
+### Debt 2: SQLite schema and persistence foundation — closed
+
+Status: completed and covered by temporary-database tests. Keep real domain queries in the repositories introduced by later debt blocks.
 
 Scope:
 

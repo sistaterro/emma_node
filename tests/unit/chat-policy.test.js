@@ -5,7 +5,7 @@ import {
   detectQuestionLanguage,
   noInfoReply,
   positiveIntSetting,
-} from "./chat-policy.js";
+} from "#src/chat-policy.js";
 
 describe("chat policy", () => {
   it("keeps ordered whole chunks within the context budget", () => {

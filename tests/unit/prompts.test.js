@@ -6,7 +6,7 @@ import {
   buildRagPrompt,
   buildRagSecurityPrompt,
   buildSafetyPrompt,
-} from "./prompts.js";
+} from "#src/prompts.js";
 
 describe("prompt builders", () => {
   it("wraps RAG text as untrusted context", () => {

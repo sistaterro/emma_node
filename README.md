@@ -107,6 +107,8 @@ Fastify serves the generated `dist/` directory and returns `index.html` for clie
 ```powershell
 npm run check
 npm test
+npm run test:unit
+npm run test:integration
 npm run build
 ```
 
@@ -129,6 +131,8 @@ src/files/             Scoped file-storage policies
 src/rag/               Ingestion, context, security integration, and conflicts
 src/models/            Catalog and LangChain provider boundary
 src/chat/              Orchestration, streaming, and audit services
+tests/unit/             Framework-independent unit tests
+tests/integration/      Fastify, SQLite, filesystem, and route integration tests
 src/app.js             Fastify application builder and SPA serving
 src/server.js          Backend process entry point
 src/main.jsx           React route selection and legacy aliases

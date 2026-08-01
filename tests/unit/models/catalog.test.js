@@ -3,9 +3,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { createConfig } from "../config.js";
-import { HttpError } from "../errors.js";
-import { createModelCatalog } from "./catalog.js";
+import { createConfig } from "#src/config.js";
+import { HttpError } from "#src/errors.js";
+import { createModelCatalog } from "#src/models/catalog.js";
 
 /** @type {string[]} */
 const directories = [];

@@ -3,9 +3,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { buildApp } from "../app.js";
-import { createConfig } from "../config.js";
-import { createSession } from "../auth/sessions.js";
+import { buildApp } from "#src/app.js";
+import { createConfig } from "#src/config.js";
+import { createSession } from "#src/auth/sessions.js";
 
 /** @type {string[]} */
 const directories = [];
@@ -25,7 +25,7 @@ describe("health route", () => {
       { id: "gemini:test", label: "Gemini", provider: "gemini", source: "external_apis", source_label: "External APIs", model: "test" },
       { id: "local:test", label: "Local test", provider: "local", source: "local", source_label: "Local", model: "test", local: true },
     ];
-    const modelCatalog = /** @type {ReturnType<typeof import("../models/catalog.js").createModelCatalog>} */ (/** @type {unknown} */ ({ availableModels: async () => models }));
+    const modelCatalog = /** @type {ReturnType<typeof import("#src/models/catalog.js").createModelCatalog>} */ (/** @type {unknown} */ ({ availableModels: async () => models }));
     const app = buildApp({ logger: false }, { config, modelCatalog });
     apps.push(app);
     await app.ready();

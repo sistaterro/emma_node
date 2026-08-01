@@ -46,7 +46,7 @@ The Python reference is not a runtime dependency. New work should maintain the N
 
 ## Verification baseline
 
-`npm run check`, `npm test`, and `npm run build` are expected to pass. Tests that inspect runtime configuration, SQLite, provider keys, or model discovery must use temporary paths and injected model catalogs; they must not depend on the developer's real `emma.db`, API keys, environment, or Ollama installation.
+`npm run check`, `npm test`, and `npm run build` are expected to pass. Unit tests live under `tests/unit/`; Fastify, SQLite, filesystem, and route tests live under `tests/integration/`. Tests that inspect runtime configuration, SQLite, provider keys, or model discovery must use temporary paths and injected model catalogs; they must not depend on the developer's real `emma.db`, API keys, environment, or Ollama installation.
 
 ## Repository structure
 
@@ -115,6 +115,8 @@ npm run dev
 npm run dev:client
 npm run check
 npm test
+npm run test:unit
+npm run test:integration
 npm run build
 npm start
 ```
@@ -122,7 +124,9 @@ npm start
 - `npm run dev`: Fastify with Node watch mode, default `127.0.0.1:8650`.
 - `npm run dev:client`: Vite, normally `localhost:5173`.
 - `npm run check`: TypeScript checking over JavaScript and JSX.
-- `npm test`: Vitest; currently has the intentional health failure described above.
+- `npm test`: complete Vitest suite.
+- `npm run test:unit`: framework-independent unit suite under `tests/unit/`.
+- `npm run test:integration`: Fastify, SQLite, filesystem, and route suite under `tests/integration/`.
 - `npm run build`: production React build.
 - `npm start`: Fastify without watch mode; serves `dist/` when already built.
 

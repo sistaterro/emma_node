@@ -4,6 +4,9 @@
   "description": "Node.js and React port of Hybrid Emma",
   "private": true,
   "type": "module",
+  "imports": {
+    "#src/*": "./src/*"
+  },
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
@@ -11,7 +14,9 @@
     "build": "vite build --configLoader runner",
     "preview": "vite preview --configLoader runner",
     "check": "tsc --noEmit",
-    "test": "vitest run --configLoader runner"
+    "test": "vitest run --configLoader runner",
+    "test:unit": "vitest run --configLoader runner tests/unit",
+    "test:integration": "vitest run --configLoader runner tests/integration"
   },
   "engines": {
     "node": ">=22.12.0"

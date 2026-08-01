@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { normalizeRole, requireAdmin, requireUploadAccess } from "./authorization.js";
-import { bearerToken } from "./sessions.js";
+import { normalizeRole, requireAdmin, requireUploadAccess } from "#src/auth/authorization.js";
+import { bearerToken } from "#src/auth/sessions.js";
 
 describe("authorization policies", () => {
   it("normalizes supported role aliases and rejects unknown roles", () => {

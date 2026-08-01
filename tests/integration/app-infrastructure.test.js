@@ -3,8 +3,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { buildApp } from "./app.js";
-import { createConfig } from "./config.js";
+import { buildApp } from "#src/app.js";
+import { createConfig } from "#src/config.js";
 
 /** @type {string[]} */
 const directories = [];

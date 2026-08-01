@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { openDatabase } from "./index.js";
+import { openDatabase } from "#src/db/index.js";
 
 /** @type {string[]} */
 const directories = [];

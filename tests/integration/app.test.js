@@ -3,8 +3,8 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { buildApp } from "./app.js";
-import { createConfig } from "./config.js";
+import { buildApp } from "#src/app.js";
+import { createConfig } from "#src/config.js";
 
 /** @type {import("fastify").FastifyInstance[]} */
 const apps = [];
@@ -21,7 +21,7 @@ describe("Fastify application", () => {
     const root = mkdtempSync(join(tmpdir(), "emma-app-health-"));
     directories.push(root);
     const config = createConfig({}, root);
-    const modelCatalog = /** @type {ReturnType<typeof import("./models/catalog.js").createModelCatalog>} */ (/** @type {unknown} */ ({ availableModels: async () => [] }));
+    const modelCatalog = /** @type {ReturnType<typeof import("#src/models/catalog.js").createModelCatalog>} */ (/** @type {unknown} */ ({ availableModels: async () => [] }));
     const app = buildApp({ logger: false }, { config, modelCatalog });
     apps.push(app);
 

@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { createConfig } from "./config.js";
+import { createConfig } from "#src/config.js";
 
 /** @type {string[]} */
 const directories = [];

@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { persistExceptionLog } from "./exception-log.js";
+import { persistExceptionLog } from "#src/logging/exception-log.js";
 
 /** @type {string[]} */
 const directories = [];

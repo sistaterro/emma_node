@@ -14,7 +14,7 @@ The objective is to port Hybrid Emma from Python/FastAPI and static HTML to Node
 - Read the relevant Python endpoint, helper modules, tests, and legacy HTML before implementing its Node equivalent.
 - Preserve behavior deliberately; do not translate Python syntax line by line or recreate the monolithic `server.py` structure.
 
-## Current migration state
+## Current implementation state
 
 ### Implemented
 
@@ -25,7 +25,7 @@ The objective is to port Hybrid Emma from Python/FastAPI and static HTML to Node
 - Shared application shell, branding, auth storage, and API client.
 - Vite development proxy under `/api`.
 - Fastify production serving for the built React SPA.
-- All 22 FastAPI route signatures registered in Fastify.
+- All legacy API endpoints implemented as cohesive Fastify plugins.
 - Pure chat policies for safe integer settings, whole-chunk context budgeting, language detection, and deterministic no-information replies.
 - Canonical prompt builders for safety, RAG security, inconsistency comparison, grounded chat, and general chat.
 - Standalone RAG security analysis, normalization, index pruning/persistence, lazy assessment, high-risk exclusion policy, and suspicious-RAG audit logging.
@@ -37,18 +37,12 @@ The objective is to port Hybrid Emma from Python/FastAPI and static HTML to Node
 - Administrative user listing, creation, editing, password reset, deletion, session invalidation, and final-admin safeguards.
 - User-scoped conversation CRUD with ordered, atomic turn persistence.
 - Scoped text-file storage and JSON-only RAG chunk ingestion with path and role safeguards.
+- Conservative RAG inconsistency comparison with persisted and pruned findings.
+- Integrated upload/chat RAG security screening and high-risk exclusion.
+- Provider-independent LangChain invocation and streaming for Ollama, Gemini, OpenAI, and Anthropic.
+- Safe chat orchestration, NDJSON streaming, auditing, grounding tags, and exactly-once conversation persistence.
 
-### Deliberately not implemented
-
-- Every handler in `src/routes/server.js` is empty by design.
-- Domain persistence repositories beyond the shared SQLite foundation.
-- Conversation persistence.
-- File management and RAG processing.
-- Integration of RAG security into ingestion and chat.
-- The inconsistency detection pipeline beyond its canonical prompt builder.
-- Model discovery, LangChain generation, and streaming.
-
-Do not claim these features work merely because the frontend contains their controls or the Fastify routes exist.
+The Python reference is not a runtime dependency. New work should maintain the Node implementation directly and use the reference only to verify intentional legacy compatibility.
 
 ## Verification baseline
 
@@ -68,9 +62,8 @@ Do not claim these features work merely because the frontend contains their cont
   - Provides the production SPA fallback for HTML navigation.
 
 - `src/routes/server.js`
-  - Current inventory of routes migrated from FastAPI.
-  - Handlers are intentionally empty.
-  - As implementation grows, split cohesive route groups into modules such as `auth`, `users`, `files`, `conversations`, and `chat`; keep a clear registration boundary.
+  - Contains only the legacy favicon compatibility route.
+  - Product endpoints live in cohesive `auth`, `users`, `files`, `conversations`, `health`, and `chat` route plugins.
 
 - `src/lib/api.js`
   - Canonical frontend API client.
@@ -88,7 +81,7 @@ Do not claim these features work merely because the frontend contains their cont
 - `src/rag-security.js`
   - Framework-independent RAG prompt-injection assessment and persistence policies.
   - Receives model catalog, model resolution, generation, and exception logging as injected functions.
-  - It is implemented and unit tested but not yet wired into upload or chat endpoints.
+  - It is wired into upload, file listing/deletion, lazy context loading, and chat exclusion.
 
 - `src/auth/`
   - Canonical password, session, current-user, role normalization, and authorization policies.
@@ -266,9 +259,9 @@ Frontend visibility is a convenience. Every permission must be enforced again in
 - Retain bounded log rotation behavior.
 - High-risk RAG records and suspicious chat assessments require enough metadata to investigate without exposing secrets unnecessarily.
 
-## Final migration stage: tracked technical debt
+## Completed migration technical-debt record
 
-The remaining `server.py` migration is the final major stage of the port. Treat every item below as tracked technical debt until its implementation, integration, and tests exist in Node.
+The blocks below record the completed backend migration. Their scope and completion criteria remain maintenance requirements.
 
 Work through the parts in order. A later part may depend on earlier infrastructure, permissions, or persistence. Do not migrate the entire Python server into one JavaScript file or one oversized change.
 
@@ -534,7 +527,9 @@ Completion criteria:
 - Streaming and non-streaming paths persist equivalent final content.
 - Provider or client disconnect failures do not create duplicate messages.
 
-### Debt 12: route decomposition and final parity validation
+### Debt 12: route decomposition and final parity validation — closed
+
+Status: all route placeholders are removed, documentation reflects Node runtime behavior, and the complete verification baseline passes.
 
 Scope:
 

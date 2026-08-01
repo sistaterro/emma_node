@@ -1,8 +1,8 @@
 # Emma Node
 
-Emma Node is an in-progress migration of Hybrid Emma from a Python/FastAPI application to a Node.js stack built with Fastify and React.
+Emma Node is the completed Node.js/Fastify and React port of Hybrid Emma.
 
-The React interface has been migrated. The Fastify HTTP contract is present, but its endpoint handlers are intentionally empty while the backend is ported incrementally from the local reference implementation.
+The React interface and Fastify backend implement the legacy product contract with local SQLite persistence, scoped knowledge files, RAG safety, provider-independent model generation, and NDJSON chat streaming.
 
 ## Current status
 
@@ -12,15 +12,15 @@ The React interface has been migrated. The Fastify HTTP contract is present, but
 | Legacy page aliases | Migrated |
 | Fastify server bootstrap | Working |
 | Static production frontend | Working after `npm run build` |
-| API route signatures | Registered with empty handlers |
+| API endpoints | Implemented and integration tested |
 | Chat policies and prompt builders | Ported and unit tested |
-| RAG security module | Ported and unit tested; not integrated |
+| RAG security and conflicts | Integrated and tested |
 | Health and model catalog | Implemented and unit tested |
 | Authentication, sessions, and authorization | Implemented and unit tested |
 | SQLite schema and lifecycle | Implemented and unit tested |
-| Domain persistence repositories | Not implemented |
-| File and RAG pipeline | Not implemented |
-| LangChain generation and streaming | Not implemented |
+| Domain persistence repositories | Implemented |
+| File and RAG pipeline | Implemented |
+| LangChain generation and streaming | Implemented |
 
 On a new database, sign in with `admin` / `admin1234`. Emma immediately requires replacing that temporary password before protected workspace routes become available.
 
@@ -123,7 +123,12 @@ src/chat-policy.js     Context budgeting and deterministic language replies
 src/prompts.js         Canonical AI prompt builders
 src/rag-security.js    RAG security normalization, indexes, and audit logs
 src/auth/              Password, bearer-session, and authorization policies
-src/routes/server.js   Empty Fastify endpoint contract
+src/routes/            Cohesive Fastify route plugins
+src/db/                SQLite schema and repositories
+src/files/             Scoped file-storage policies
+src/rag/               Ingestion, context, security integration, and conflicts
+src/models/            Catalog and LangChain provider boundary
+src/chat/              Orchestration, streaming, and audit services
 src/app.js             Fastify application builder and SPA serving
 src/server.js          Backend process entry point
 src/main.jsx           React route selection and legacy aliases
@@ -144,9 +149,9 @@ The following must remain outside version control:
 
 Never expose API keys through the frontend or health responses.
 
-## Backend migration approach
+## Backend architecture
 
-The backend should be implemented in small, testable slices. A practical order is:
+The backend was migrated in these independently tested slices:
 
 1. Configuration, errors, SQLite initialization, and `/health`.
 2. Authentication, sessions, forced password changes, and role enforcement.
@@ -159,4 +164,4 @@ The backend should be implemented in small, testable slices. A practical order i
 7. LangChain model discovery, generation, and NDJSON streaming.
    Chat now applies safe visible context, response tags, safety auditing, and conversation persistence.
 
-The reference behavior lives locally under `reference/hybrid_emma`, but that directory is migration input rather than application code.
+The historical Python implementation remains locally under `reference/hybrid_emma` as ignored maintenance reference only. No application runtime imports or executes it.

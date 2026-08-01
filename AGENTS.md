@@ -483,7 +483,9 @@ Completion criteria:
 - Deletion prunes security records.
 - Multilingual and parse-error behavior remains conservative and tested.
 
-### Debt 10: LangChain provider boundary
+### Debt 10: LangChain provider boundary — closed
+
+Status: implemented for invocation and streaming across all configured providers, with mocked tests.
 
 Scope:
 

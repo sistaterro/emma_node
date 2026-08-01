@@ -14,7 +14,13 @@ afterEach(async () => { await Promise.all(apps.splice(0).map((app) => app.close(
 async function setup() {
   const root = mkdtempSync(join(tmpdir(), "emma-conversations-")); roots.push(root);
   const config = createConfig({}, root);
-  const models = /** @type {any} */ ({ availableModels: async () => [] });
+  const models = /** @type {any} */ ({
+    availableModels: async () => [{ id: "model" }],
+    resolveModel: async (/** @type {string} */ selection) => {
+      if (selection !== "model") throw new Error("Unsupported model");
+      return { id: "model" };
+    },
+  });
   const app = buildApp({ logger: false }, { config, modelCatalog: models }); apps.push(app); await app.ready();
   if (!app.emmaDb) throw new Error("Database unavailable");
   app.emmaDb.prepare("UPDATE users SET must_change_password = 0 WHERE id = 1").run();
@@ -39,6 +45,8 @@ describe("conversation routes", () => {
     expect(read.json().messages.map((/** @type {{role: string, content: string}} */ item) => [item.role, item.content])).toEqual([["user", "question"], ["assistant", "answer"]]);
     expect((await app.inject({ method: "PATCH", url: `/conversations/${id}/title`, headers: headers(token), payload: { title: "Renamed" } })).statusCode).toBe(200);
     expect((await app.inject({ url: `/conversations/${id}`, headers: headers(token) })).json().title).toBe("Renamed");
+    expect((await app.inject({ method: "PATCH", url: `/conversations/${id}/model`, headers: headers(token), payload: { model: "model" } })).statusCode).toBe(200);
+    expect((await app.inject({ url: `/conversations/${id}`, headers: headers(token) })).json().model).toBe("model");
     expect((await app.inject({ method: "DELETE", url: `/conversations/${id}`, headers: headers(token) })).statusCode).toBe(200);
     expect((await app.inject({ url: `/conversations/${id}`, headers: headers(token) })).statusCode).toBe(404);
   });

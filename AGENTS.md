@@ -185,6 +185,7 @@ The Fastify routes must preserve these paths and methods unless the product cont
 - `POST /conversations`
 - `GET /conversations/:conv_id`
 - `PATCH /conversations/:conv_id/title`
+- `PATCH /conversations/:conv_id/model`
 - `DELETE /conversations/:conv_id`
 - `POST /chat`
 

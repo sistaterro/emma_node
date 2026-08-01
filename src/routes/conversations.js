@@ -1,12 +1,13 @@
 import { z } from "zod";
 
 import { authenticateRequest, currentUser, requireDatabase } from "../auth/sessions.js";
-import { createConversation, deleteConversation, getConversation, listConversations, renameConversation } from "../db/conversations.js";
+import { changeConversationModel, createConversation, deleteConversation, getConversation, listConversations, renameConversation } from "../db/conversations.js";
 import { parseInput } from "../http/validation.js";
 
 const idSchema = z.string().trim().min(1).max(200);
 const createSchema = z.object({ title: z.string().trim().min(1).max(200), model: z.string().trim().min(1).max(200) });
 const titleSchema = z.object({ title: z.string().trim().min(1).max(200) });
+const modelSchema = z.object({ model: z.string().trim().min(1).max(200) });
 
 /** @param {import("fastify").FastifyInstance} app */
 export default function conversationRoutes(app) {
@@ -30,6 +31,12 @@ export default function conversationRoutes(app) {
     const { database, user } = context(request);
     const { title } = parseInput(titleSchema, request.body);
     return { status: "ok", updated_at: renameConversation(database, user.id, conversationId(request), title) };
+  });
+  app.patch("/conversations/:conv_id/model", { preHandler: authenticate }, async (request) => {
+    const { database, user } = context(request);
+    const { model } = parseInput(modelSchema, request.body);
+    await app.emmaModels.resolveModel(model);
+    return { status: "ok", updated_at: changeConversationModel(database, user.id, conversationId(request), model) };
   });
   app.delete("/conversations/:conv_id", { preHandler: authenticate }, async (request) => {
     const { database, user } = context(request);

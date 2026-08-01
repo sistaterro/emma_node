@@ -18,16 +18,18 @@ export function ChatPage({ user, variant = "default" }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [error, setError] = useState("");
   const endRef = useRef(null);
+  const userSelectedModelRef = useRef(false);
 
   useEffect(() => {
     Promise.allSettled([apiJson("/health"), apiJson("/conversations")]).then(([health, list]) => {
       if (health.status === "fulfilled" && health.value.models?.length) {
-        setModels(health.value.models); if (!health.value.models.some((item) => item.id === model)) setModel(health.value.models[0].id);
+        setModels(health.value.models);
+        setModel((current) => health.value.models.some((item) => item.id === current) ? current : health.value.models[0].id);
       }
       if (list.status === "fulfilled") {
         const items = list.value.conversations ?? []; setConversations(items);
         const chosen = items.some((item) => item.id === activeId) ? activeId : items[0]?.id;
-        if (chosen) openConversation(chosen);
+        if (chosen) openConversation(chosen, { preserveUserSelection: true });
       }
     });
   }, []);
@@ -35,9 +37,19 @@ export function ChatPage({ user, variant = "default" }) {
   useEffect(() => { localStorage.setItem("emma_model", model); }, [model]);
 
   async function refreshConversations() { const data = await apiJson("/conversations"); setConversations(data.conversations ?? []); }
-  async function openConversation(id) {
-    try { const data = await apiJson(`/conversations/${id}`); setActiveId(id); localStorage.setItem("emma_active", id); setMessages(data.messages ?? []); if (data.model) setModel(data.model); setSidebarOpen(false); }
+  async function openConversation(id, { preserveUserSelection = false } = {}) {
+    try { const data = await apiJson(`/conversations/${id}`); setActiveId(id); localStorage.setItem("emma_active", id); setMessages(data.messages ?? []); if (data.model && !(preserveUserSelection && userSelectedModelRef.current)) setModel(data.model); setSidebarOpen(false); }
     catch (reason) { setError(reason.message); }
+  }
+  async function changeModel(nextModel) {
+    userSelectedModelRef.current = true;
+    setModel(nextModel);
+    localStorage.setItem("emma_model", nextModel);
+    if (!activeId) return;
+    try {
+      await api(`/conversations/${activeId}/model`, { method: "PATCH", body: JSON.stringify({ model: nextModel }) });
+      setConversations((items) => items.map((item) => item.id === activeId ? { ...item, model: nextModel } : item));
+    } catch (reason) { setError(reason.message); }
   }
   async function createConversation(initialText = "") {
     const data = await apiJson("/conversations", { method: "POST", body: JSON.stringify({ title: initialText.slice(0, 48) || "New chat", model }) });
@@ -78,7 +90,7 @@ export function ChatPage({ user, variant = "default" }) {
   return <AppShell user={user} active="/chat" evil={evil}>
     <div className={`chat-page chat-page--${variant}`}>
       <aside className={`conversation-panel ${sidebarOpen ? "open" : ""}`}><div className="conversation-panel__header"><h2>Conversations</h2><button className="icon-button" onClick={() => setSidebarOpen(false)}>×</button></div><button className="button button--wide" onClick={() => createConversation()}>+ New conversation</button><div className="conversation-list">{conversations.map((conversation) => <button className={activeId === conversation.id ? "active" : ""} key={conversation.id} onClick={() => openConversation(conversation.id)}><span><strong>{conversation.title}</strong><small>{conversation.model}</small></span><i onClick={(event) => removeConversation(event, conversation.id)}>×</i></button>)}</div></aside>
-      <section className="chat-workspace"><header className="chat-header"><button className="icon-button mobile-only" onClick={() => setSidebarOpen(true)}>☰</button><div><span className="eyebrow">{evil ? "Unrestricted aesthetic · standard safety" : "Secure assistant"}</span><h1>{title}</h1></div><label className="model-picker"><span>Model</span><select value={model} onChange={(event) => setModel(event.target.value)}>{models.map((item) => <option value={item.id} key={item.id}>{item.name ?? item.id} · {item.provider}</option>)}</select></label></header>
+      <section className="chat-workspace"><header className="chat-header"><button className="icon-button mobile-only" onClick={() => setSidebarOpen(true)}>☰</button><div><span className="eyebrow">{evil ? "Unrestricted aesthetic · standard safety" : "Secure assistant"}</span><h1>{title}</h1></div><label className="model-picker"><span>Model</span><select value={model} onChange={(event) => changeModel(event.target.value)}>{models.map((item) => <option value={item.id} key={item.id}>{item.name ?? item.id} · {item.provider}</option>)}</select></label></header>
         <div className="message-list">{messages.length === 0 ? <div className="chat-empty"><span className="chat-empty__orb">✦</span><h2>{evil ? "What truth are we dissecting?" : "How can I help you today?"}</h2><p>Start a conversation with the selected model. Safe RAG context will be included automatically.</p><div className="suggestions">{["Summarize my knowledge base", "Find inconsistencies", "Explain the available sources"].map((text) => <button key={text} onClick={() => setDraft(text)}>{text}<span>→</span></button>)}</div></div> : messages.map((message, index) => <article className={`message message--${message.role}`} key={message.id ?? index}><div className="message__avatar">{message.role === "user" ? (user.full_name ?? user.username)[0].toUpperCase() : evil ? "E" : "✦"}</div><div><strong>{message.role === "user" ? "You" : evil ? "Evil Emma" : "Emma"}</strong><p>{message.content || (streaming && index === messages.length - 1 ? "Thinking…" : "")}</p></div></article>)}<div ref={endRef} /></div>
         <div className="composer-wrap">{error && <div className="alert alert--error">{error}</div>}<form className="composer" onSubmit={send}><textarea value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); } }} placeholder="Message Emma…" rows="1" /><button disabled={!draft.trim() || streaming}>{streaming ? "…" : "↑"}</button></form><small>Emma can make mistakes. Verify important information.</small></div>
       </section>

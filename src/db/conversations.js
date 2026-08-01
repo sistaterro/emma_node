@@ -34,6 +34,14 @@ export function renameConversation(database, userId, conversationId, title) {
   return updatedAt;
 }
 
+/** @param {import("better-sqlite3").Database} database @param {number} userId @param {string} conversationId @param {string} model */
+export function changeConversationModel(database, userId, conversationId, model) {
+  requireOwnedConversation(database, userId, conversationId);
+  const updatedAt = new Date().toISOString();
+  database.prepare("UPDATE conversations SET model = ?, updated_at = ? WHERE id = ? AND user_id = ?").run(model, updatedAt, conversationId, userId);
+  return updatedAt;
+}
+
 /** @param {import("better-sqlite3").Database} database @param {number} userId @param {string} conversationId */
 export function deleteConversation(database, userId, conversationId) {
   requireOwnedConversation(database, userId, conversationId);

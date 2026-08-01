@@ -8,5 +8,4 @@
 export default async function serverRoutes(app) {
   app.get("/favicon.ico", async function favicon() {});
 
-  app.post("/chat", async function chat() {});
 }

@@ -507,7 +507,9 @@ Completion criteria:
 - Missing packages, keys, models, and runtimes produce clear errors.
 - Automated tests mock every provider and make no real external calls.
 
-### Debt 11: chat orchestration, safety, and streaming
+### Debt 11: chat orchestration, safety, and streaming — closed
+
+Status: implemented with safe-context selection, user-message analysis, NDJSON, response tags, auditing, and exactly-once persistence.
 
 Scope:
 

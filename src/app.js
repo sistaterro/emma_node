@@ -16,6 +16,7 @@ import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import conversationRoutes from "./routes/conversations.js";
 import fileRoutes from "./routes/files.js";
+import chatRoutes from "./routes/chat.js";
 import { ensureRuntimeDirectories } from "./runtime.js";
 
 const frontendRoot = fileURLToPath(new URL("../dist", import.meta.url));
@@ -44,6 +45,7 @@ export function buildApp(options = {}, dependencies = {}) {
   userRoutes(app);
   conversationRoutes(app);
   fileRoutes(app);
+  chatRoutes(app);
   healthRoutes(app);
   app.register(serverRoutes);
   app.addHook("onReady", async () => ensureRuntimeDirectories(runtimeConfig));

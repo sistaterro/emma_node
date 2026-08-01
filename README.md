@@ -157,5 +157,6 @@ The backend should be implemented in small, testable slices. A practical order i
    Inconsistency records are persisted and pruned when their sources disappear.
    RAG prompt-injection findings are persisted, audited, and high-risk sources are excluded from chat context.
 7. LangChain model discovery, generation, and NDJSON streaming.
+   Chat now applies safe visible context, response tags, safety auditing, and conversation persistence.
 
 The reference behavior lives locally under `reference/hybrid_emma`, but that directory is migration input rather than application code.

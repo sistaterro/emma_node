@@ -19,12 +19,12 @@ anthropic_api.txt
 # Runtime database and user data
 emma.db
 emma.db-*
-files/
-chunks/
+/files/
+/chunks/
 files_index.json
 conflicts_index.json
 security_index.json
-logs/
+/logs/
 
 # Temporary files and logs
 *.log

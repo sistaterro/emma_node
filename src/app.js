@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import fastifyCors from "@fastify/cors";
 import fastifyStatic from "@fastify/static";
+import fastifyMultipart from "@fastify/multipart";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
@@ -13,6 +14,7 @@ import healthRoutes from "./routes/health.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import conversationRoutes from "./routes/conversations.js";
+import fileRoutes from "./routes/files.js";
 import { ensureRuntimeDirectories } from "./runtime.js";
 
 const frontendRoot = fileURLToPath(new URL("../dist", import.meta.url));
@@ -32,11 +34,13 @@ export function buildApp(options = {}, dependencies = {}) {
   app.decorate("emmaConfig", runtimeConfig);
   app.decorate("emmaModels", modelCatalog);
   app.register(fastifyCors, { origin: true, methods: ["GET", "HEAD", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"] });
+  app.register(fastifyMultipart, { limits: { files: 1, fileSize: 10 * 1024 * 1024 } });
   errorHandlerPlugin(app, { config: runtimeConfig });
   databasePlugin(app, { config: runtimeConfig });
   authRoutes(app);
   userRoutes(app);
   conversationRoutes(app);
+  fileRoutes(app);
   healthRoutes(app);
   app.register(serverRoutes);
   app.addHook("onReady", async () => ensureRuntimeDirectories(runtimeConfig));

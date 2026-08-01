@@ -36,6 +36,7 @@ The objective is to port Hybrid Emma from Python/FastAPI and static HTML to Node
 - Bcrypt passwords, bearer sessions, forced temporary-password replacement, protected health access, and reusable role policies.
 - Administrative user listing, creation, editing, password reset, deletion, session invalidation, and final-admin safeguards.
 - User-scoped conversation CRUD with ordered, atomic turn persistence.
+- Scoped text-file storage and JSON-only RAG chunk ingestion with path and role safeguards.
 
 ### Deliberately not implemented
 
@@ -413,7 +414,9 @@ Completion criteria:
 - Delete and recreate edge cases do not leave stale UI state.
 - Chat persistence can later store each user/assistant turn exactly once.
 
-### Debt 7: file storage and RAG ingestion
+### Debt 7: file storage and RAG ingestion — closed
+
+Status: implemented with synchronous, deletion-safe ingestion and route/integration coverage.
 
 Scope:
 

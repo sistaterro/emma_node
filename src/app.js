@@ -10,6 +10,7 @@ import { config as defaultConfig } from "./config.js";
 import errorHandlerPlugin from "./plugins/error-handler.js";
 import databasePlugin from "./plugins/database.js";
 import { createModelCatalog } from "./models/catalog.js";
+import { createGenerationBoundary } from "./models/generate.js";
 import healthRoutes from "./routes/health.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
@@ -21,11 +22,12 @@ const frontendRoot = fileURLToPath(new URL("../dist", import.meta.url));
 
 /**
  * @param {import("fastify").FastifyServerOptions} [options]
- * @param {{config?: ReturnType<typeof import("./config.js").createConfig>, modelCatalog?: ReturnType<typeof import("./models/catalog.js").createModelCatalog>}} [dependencies]
+ * @param {{config?: ReturnType<typeof import("./config.js").createConfig>, modelCatalog?: ReturnType<typeof import("./models/catalog.js").createModelCatalog>, generation?: ReturnType<typeof import("./models/generate.js").createGenerationBoundary>}} [dependencies]
  */
 export function buildApp(options = {}, dependencies = {}) {
   const runtimeConfig = dependencies.config ?? defaultConfig;
   const modelCatalog = dependencies.modelCatalog ?? createModelCatalog(runtimeConfig);
+  const generation = dependencies.generation ?? createGenerationBoundary(modelCatalog, runtimeConfig);
   const app = Fastify({
     logger: true,
     ...options,
@@ -33,6 +35,7 @@ export function buildApp(options = {}, dependencies = {}) {
 
   app.decorate("emmaConfig", runtimeConfig);
   app.decorate("emmaModels", modelCatalog);
+  app.decorate("emmaGeneration", generation);
   app.register(fastifyCors, { origin: true, methods: ["GET", "HEAD", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"] });
   app.register(fastifyMultipart, { limits: { files: 1, fileSize: 10 * 1024 * 1024 } });
   errorHandlerPlugin(app, { config: runtimeConfig });

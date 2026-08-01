@@ -462,7 +462,9 @@ Completion criteria:
 - Missing checks can be scheduled without duplicate uncontrolled work.
 - Deleting either side removes stale conflict information.
 
-### Debt 9: RAG security integration
+### Debt 9: RAG security integration — closed
+
+Status: upload screening, persisted/audited findings, lazy chat assessment, high-risk exclusion, listing, and deletion pruning are integrated.
 
 Scope:
 

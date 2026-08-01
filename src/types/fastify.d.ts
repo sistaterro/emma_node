@@ -16,5 +16,6 @@ declare module "fastify" {
     emmaConfig: ReturnType<typeof import("../config.js").createConfig>;
     emmaDb: Database.Database | null;
     emmaModels: ReturnType<typeof import("../models/catalog.js").createModelCatalog>;
+    emmaGeneration: ReturnType<typeof import("../models/generate.js").createGenerationBoundary>;
   }
 }

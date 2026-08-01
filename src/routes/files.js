@@ -7,6 +7,7 @@ import { deleteStoredFile, deleteStoredFiles, globalStorage, listStoredFiles, re
 import { processRagFile } from "../rag/ingestion.js";
 import { HttpError } from "../errors.js";
 import { parseInput } from "../http/validation.js";
+import { assessRagPromptInjection, persistSuspiciousRagAuditLog, saveSecurityToIndex } from "../rag-security.js";
 
 const querySchema = z.object({ scope: z.enum(["global", "user"]).default("user"), owner_id: z.coerce.number().int().positive().optional() });
 /** @param {import("fastify").FastifyInstance} app */
@@ -22,7 +23,8 @@ export default function fileRoutes(app) {
     const user = currentUser(request); requireUploadAccess(user); const query = parseInput(querySchema, request.query); const storage = resolveStorage(app, user, query.scope, query.owner_id);
     const file = await request.file(); if (!file?.filename) throw new HttpError(400, "A file is required"); const safeName = sanitizeFilename(file.filename); const bytes = await file.toBuffer();
     mkdirSync(storage.filesDir, { recursive: true }); mkdirSync(storage.chunksDir, { recursive: true }); const path = `${storage.filesDir}\\${safeName}`; const duplicateName = (await import("node:fs")).existsSync(path); writeFileSync(path, bytes); const output = processRagFile(path, storage.chunksDir, query.scope, storage.ownerId);
-    return { status: "ok", file: file.filename, stored_as: safeName, scope: query.scope, message: "File received and split into chunks.", duplicate_name: duplicateName, inconsistencies: [], security: { has_any: false, risk: "none", matches: [], status: "unchecked" }, chunks: output?.total ?? 0 };
+    const models=await app.emmaModels.availableModels();let security={has_any:false,risk:"none",matches:[],status:"unavailable"};if(models[0]){const resolve=(/** @type {string} */ id)=>{const found=models.find(item=>item.id===id);if(!found)throw new HttpError(400,"Unsupported model");return found;};security=/** @type {any} */(await assessRagPromptInjection(bytes.toString("utf8"),safeName,models[0],()=>models,resolve,(model,messages)=>app.emmaGeneration.generate(model,messages)));saveSecurityToIndex(storage.filesDir,parse(safeName).name,security);persistSuspiciousRagAuditLog(app.emmaConfig.ragAuditDir,path,query.scope,storage.ownerId,security);}
+    return { status: "ok", file: file.filename, stored_as: safeName, scope: query.scope, message: "File received and split into chunks.", duplicate_name: duplicateName, inconsistencies: [], security, chunks: output?.total ?? 0 };
   });
   app.delete("/files/:scope/:stem", { preHandler: authenticate }, async (request) => { const user = currentUser(request); requireUploadAccess(user); const params = /** @type {{scope:string,stem:string}} */ (request.params); const query = parseInput(z.object({ owner_id: z.coerce.number().int().positive().optional() }), request.query); const storage = resolveStorage(app, user, params.scope, query.owner_id); return { status: "ok", deleted: deleteStoredFile(storage.filesDir, storage.chunksDir, params.stem) }; });
   app.delete("/files/:scope", { preHandler: authenticate }, async (request) => { const user = currentUser(request); requireUploadAccess(user); const params = /** @type {{scope:string}} */ (request.params); const query = parseInput(z.object({ owner_id: z.coerce.number().int().positive().optional() }), request.query); const storage = resolveStorage(app, user, params.scope, query.owner_id); return { status: "ok", scope: params.scope, deleted_count: deleteStoredFiles(storage.filesDir, storage.chunksDir) }; });

@@ -121,6 +121,11 @@ npm run build
 npm start
 ```
 
+Windows convenience entry points at the repository root:
+
+- `run.bat`: installs missing dependencies, builds the current frontend, starts Fastify on port `8650`, waits for readiness, and opens `/login`.
+- `test.bat`: runs `npm run check` and the complete `npm test` suite.
+
 - `npm run dev`: Fastify with Node watch mode, default `127.0.0.1:8650`.
 - `npm run dev:client`: Vite, normally `localhost:5173`.
 - `npm run check`: TypeScript checking over JavaScript and JSX.

@@ -57,6 +57,10 @@ VITE_BACKEND_URL=http://127.0.0.1:8650
 
 ## Development
 
+On Windows, `run.bat` installs missing dependencies, builds React, starts Fastify on port `8650`, waits for it to become ready, and opens the login page.
+
+`test.bat` runs the type check followed by the complete unit and integration test suite.
+
 Run the backend in one terminal:
 
 ```powershell

@@ -35,6 +35,7 @@ The objective is to port Hybrid Emma from Python/FastAPI and static HTML to Node
 - Provider-key resolution, Ollama model discovery with timeout/fallback, model resolution, and the `/health` response contract.
 - Bcrypt passwords, bearer sessions, forced temporary-password replacement, protected health access, and reusable role policies.
 - Administrative user listing, creation, editing, password reset, deletion, session invalidation, and final-admin safeguards.
+- User-scoped conversation CRUD with ordered, atomic turn persistence.
 
 ### Deliberately not implemented
 
@@ -391,7 +392,9 @@ Completion criteria:
 - Admin-only enforcement is covered by tests.
 - Renaming users and resetting passwords preserve the reference behavior.
 
-### Debt 6: conversation persistence
+### Debt 6: conversation persistence — closed
+
+Status: implemented and covered by ownership and lifecycle integration tests.
 
 Scope:
 

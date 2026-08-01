@@ -14,11 +14,5 @@ export default async function serverRoutes(app) {
   app.delete("/files/:scope", async function deleteFiles() {});
   app.get("/files/:scope/:stem/download", async function downloadFile() {});
 
-  app.get("/conversations", async function listConversations() {});
-  app.post("/conversations", async function createConversation() {});
-  app.get("/conversations/:conv_id", async function getConversation() {});
-  app.patch("/conversations/:conv_id/title", async function updateConversationTitle() {});
-  app.delete("/conversations/:conv_id", async function deleteConversation() {});
-
   app.post("/chat", async function chat() {});
 }

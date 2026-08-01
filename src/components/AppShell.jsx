@@ -24,7 +24,7 @@ export function AppShell({ user, children, active, evil = false }) {
   }
 
   return (
-    <div className={`app-shell ${evil ? "theme-evil" : ""}`}>
+    <div className={`app-shell ${active === "/chat" ? "app-shell--chat" : ""} ${evil ? "theme-evil" : ""}`}>
       <aside className="sidebar">
         <Brand evil={evil} />
         <nav className="sidebar__nav" aria-label="Main navigation">

@@ -41,7 +41,7 @@ export function LoginPage() {
       <section className="login-card">
         <Brand />
         <div className="login-card__intro">
-          <span className="eyebrow">Emma 2.0</span>
+          <span className="eyebrow">Emma 3.0</span>
           <h1>{mode === "login" ? "Welcome back" : "Set a new password"}</h1>
           <p>{mode === "login" ? "Sign in to your secure AI workspace." : "Your administrator issued a temporary password."}</p>
         </div>

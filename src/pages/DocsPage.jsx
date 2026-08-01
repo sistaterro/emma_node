@@ -14,7 +14,7 @@ const sections = [
 
 export function DocsPage({ user }) {
   return <AppShell user={user} active="/docs">
-    <header className="page-header"><div><span className="eyebrow">Emma 2.0</span><h1>Documentation</h1><p>How the Hybrid Emma workspace behaves.</p></div></header>
+    <header className="page-header"><div><span className="eyebrow">Emma 3.0</span><h1>Documentation</h1><p>How the Hybrid Emma workspace behaves.</p></div></header>
     <div className="docs-layout">
       <aside className="docs-toc"><strong>On this page</strong>{sections.map(([title], index) => <a href={`#doc-${index}`} key={title}>{title}</a>)}</aside>
       <article className="docs-content">

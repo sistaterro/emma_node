@@ -439,7 +439,9 @@ Completion criteria:
 - Chunks and indexes contain no embeddings or `.npy` artifacts.
 - Runtime data stays within configured local directories.
 
-### Debt 8: inconsistency analysis pipeline
+### Debt 8: inconsistency analysis pipeline — closed
+
+Status: implemented as a conservative, injectable comparison service with persisted/pruned frontend state.
 
 Scope:
 

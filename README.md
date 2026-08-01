@@ -154,6 +154,7 @@ The backend should be implemented in small, testable slices. A practical order i
 4. Conversation persistence. Implemented and covered by integration tests.
 5. File upload, download, deletion, and RAG indexing. Implemented with JSON-only chunks.
 6. RAG inconsistency and prompt-injection analysis.
+   Inconsistency records are persisted and pruned when their sources disappear.
 7. LangChain model discovery, generation, and NDJSON streaming.
 
 The reference behavior lives locally under `reference/hybrid_emma`, but that directory is migration input rather than application code.
